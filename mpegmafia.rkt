@@ -1,5 +1,6 @@
 #lang racket
 (require rsound)
+(require charterm)
 
 (define (play filepath)
   (define input-pstream (make-pstream))
@@ -20,18 +21,21 @@
   (values input-pstream input-sound))
 
 (define (input-loop)
-  (display "P->pause, C->continue")
-  (define command (read-line))
-  (cond [(string=? command "P")
-         (set!-values (last-frame-played input-pstream) (pause input-pstream))
-         (set! is-playing #f)
-         (input-loop)]
-        [(and (string=? command "C") (not is-playing))
-         (set!-values (input-pstream input-rsound) (continue song last-frame-played input-rsound))
-         (set! is-playing #t)
-         (input-loop)]
-        [(string=? command "exit")  (displayln "exited successfully...")]        
-        [else (displayln "unknown command") (input-loop)]))
+  (with-charterm
+      (charterm-clear-screen)
+      (display "p->pause, c->continue\n")
+      (charterm-cursor 1 2)
+      (let ((command (charterm-read-key)))
+        (cond [(char=? command #\p)
+               (set!-values (last-frame-played input-pstream) (pause input-pstream))
+               (set! is-playing #f)
+               (input-loop)]
+              [(and (char=? command #\c) (not is-playing))
+               (set!-values (input-pstream input-rsound) (continue song last-frame-played input-rsound))
+               (set! is-playing #t)
+               (input-loop)]
+              [(char=? command #\e)  (displayln "exited successfully...")]        
+              [else (displayln "unknown command") (input-loop)]))))
 
 (define song "riptide.wav")
 (define is-playing #t)
