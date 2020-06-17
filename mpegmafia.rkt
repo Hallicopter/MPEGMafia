@@ -34,19 +34,22 @@
 ; frame info for the progress bar, WIP
 (define frame-pos-channel (make-channel))
 
+; Define the terminal buffer for progress bar
+(define buf (make-cached-buffer 4 100))
+
 ; Progress bar thread
 (define progress-bar (thread (lambda ()
-                               (let loop ([counter 0])
-                                 (define buf (make-cached-buffer 4 100))
-                                 (draw buf (vappend2 (hline counter)
-                                                     (text "Playing song. Press p to pause, c to continue, e to exit.")
-                                                     #:halign 'left))
-                                 (sleep 0.2)
+                               (let loop ()
+                                 (define counter (channel-get frame-pos-channel))
+                                 
+                                 (draw buf (vappend (text (string-append (format "~v" counter) " sec"))
+                                                    (hline counter)
+                                                    (text "Playing song. Press p to pause, c to continue, e to exit.")
+                                                    #:halign 'left))
+                                 (sleep 0.4)
                                  (cond [(equal? 100 counter)
                                         #f]
-                                       [else (loop (add1 counter))])))))
-                                   
-                                   
+                                       [else (loop)])))))
 
 ; Infinite loop for taking input
 (define (input-loop)
@@ -60,7 +63,7 @@
                (set!-values (input-pstream input-rsound) (continue song last-frame-played input-rsound))
                (set! is-playing #t)
                (input-loop)]
-              [(char=? command #\e)  (displayln "exited successfully...")]        
+              [(char=? command #\e)  (displayln "\nExited successfully...")]        
               [else (displayln "unknown command") (input-loop)]))))
 
 ; Babble for testing purposes
@@ -69,4 +72,13 @@
 (define is-playing #t)
 (define-values (input-pstream input-rsound) (play song))
 (define last-frame-played 0)
+
+; Thread to update progress bar channel
+(define update-progress-bar (thread (lambda ()
+                                      (let loop ([counter 0])
+                                        (cond [is-playing
+                                               (set! counter (add1 counter))])
+                                        (channel-put frame-pos-channel counter)
+                                        (sleep 1)
+                                        (loop counter)))))
 (input-loop)
