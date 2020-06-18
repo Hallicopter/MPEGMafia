@@ -18,7 +18,7 @@
 (define (pause input-pstream)
   (define last-frame-played (pstream-current-frame input-pstream))
   (stop)
-  (+ played-frame-count last-frame-played)
+  (set! played-frame-count (+ played-frame-count last-frame-played))
   (values last-frame-played input-pstream))
 
 
@@ -36,21 +36,21 @@
 (define (forward last-frame-played input-rsound)
   (stop)
   (define end-frame (rs-frames input-rsound))
-  (define forwarded-rsound (clip input-rsound (+ last-frame-played 10000) end-frame))
+  (define forwarded-rsound (clip input-rsound (+ last-frame-played 20000) end-frame))
   (define input-pstream (make-pstream))
   (pstream-play input-pstream forwarded-rsound)
-  (values input-pstream forwarded-rsound (+ last-frame-played 10000)))
+  (values input-pstream forwarded-rsound (+ last-frame-played 20000)))
 
 ; Scrub backward
 ; Moves backward by 10,000 frames (~0.25s)
 (define (backward last-frame-played input-pstream song)
-  ( - (+ played-frame-count (pstream-current-frame input-pstream)) 10000)
+  (set! played-frame-count ( - (+ played-frame-count (pstream-current-frame input-pstream)) 60000))
   (stop)
   (define end-frame (rs-read-frames song))
-  (define input-sound (rs-read/clip song (- last-frame-played 10000) end-frame))
+  (define input-sound (rs-read/clip song (- last-frame-played 60000) end-frame))
   (set! input-pstream (make-pstream))
   (pstream-play input-pstream input-sound)
-  (values input-pstream input-sound (- last-frame-played 10000)))
+  (values input-pstream input-sound (- last-frame-played 60000)))
   
 ; Creates channel to communcate current
 ; frame info for the progress bar, WIP
@@ -89,7 +89,6 @@
                (set!-values
                 (input-pstream input-rsound last-frame-played)
                 (backward (+ played-frame-count (pstream-current-frame input-pstream)) input-pstream song))
-               (displayln (+ played-frame-count last-frame-played))
                (set! is-playing #t)
                (input-loop)]
               [(and (char=? command #\k) is-playing)
