@@ -18,18 +18,40 @@
 (define (pause input-pstream)
   (define last-frame-played (pstream-current-frame input-pstream))
   (stop)
+  (+ played-frame-count last-frame-played)
   (values last-frame-played input-pstream))
 
 
 ; Continues to play the current song
 ; if the is-playing flag is #f
-(define (continue song last-frame-played  input-file)
+(define (continue last-frame-played  input-file)
   (define end-frame (rs-frames input-file))
   (define input-sound (clip input-file last-frame-played end-frame))
   (define input-pstream (make-pstream))
   (pstream-play input-pstream input-sound)
   (values input-pstream input-sound))
 
+; Scrub forward
+; Moves forward by 10,000 frames (~0.25s)
+(define (forward last-frame-played input-rsound)
+  (stop)
+  (define end-frame (rs-frames input-rsound))
+  (define forwarded-rsound (clip input-rsound (+ last-frame-played 10000) end-frame))
+  (define input-pstream (make-pstream))
+  (pstream-play input-pstream forwarded-rsound)
+  (values input-pstream forwarded-rsound (+ last-frame-played 10000)))
+
+; Scrub backward
+; Moves backward by 10,000 frames (~0.25s)
+(define (backward last-frame-played input-pstream song)
+  ( - (+ played-frame-count (pstream-current-frame input-pstream)) 10000)
+  (stop)
+  (define end-frame (rs-read-frames song))
+  (define input-sound (rs-read/clip song (- last-frame-played 10000) end-frame))
+  (set! input-pstream (make-pstream))
+  (pstream-play input-pstream input-sound)
+  (values input-pstream input-sound (- last-frame-played 10000)))
+  
 ; Creates channel to communcate current
 ; frame info for the progress bar, WIP
 (define frame-pos-channel (make-channel))
@@ -60,18 +82,31 @@
                (set! is-playing #f)
                (input-loop)]
               [(and (char=? command #\c) (not is-playing))
-               (set!-values (input-pstream input-rsound) (continue song last-frame-played input-rsound))
+               (set!-values (input-pstream input-rsound) (continue last-frame-played input-rsound))
+               (set! is-playing #t)
+               (input-loop)]
+              [(and (char=? command #\j) is-playing)
+               (set!-values
+                (input-pstream input-rsound last-frame-played)
+                (backward (+ played-frame-count (pstream-current-frame input-pstream)) input-pstream song))
+               (displayln (+ played-frame-count last-frame-played))
+               (set! is-playing #t)
+               (input-loop)]
+              [(and (char=? command #\k) is-playing)
+               (set!-values (input-pstream input-rsound last-frame-played) (forward (pstream-current-frame input-pstream)  input-rsound))
                (set! is-playing #t)
                (input-loop)]
               [(char=? command #\e)  (displayln "\nExited successfully...")]        
               [else (displayln "unknown command") (input-loop)]))))
 
-; Babble for testing purposes
+  
 
+; Babble for testing purposes
 (define song "riptide.wav")
 (define is-playing #t)
 (define-values (input-pstream input-rsound) (play song))
 (define last-frame-played 0)
+(define played-frame-count 0)
 
 ; Thread to update progress bar channel
 (define update-progress-bar (thread (lambda ()
