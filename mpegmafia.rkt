@@ -33,11 +33,12 @@
 
 ; Scrub forward
 ; Moves forward by 10,000 frames (~0.25s)
-(define (forward last-frame-played input-rsound)
+(define (forward last-frame-played input-rsound input-pstream)
+  (set! played-frame-count ( + (+ played-frame-count (pstream-current-frame input-pstream)) 20000))
   (stop)
   (define end-frame (rs-frames input-rsound))
   (define forwarded-rsound (clip input-rsound (+ last-frame-played 20000) end-frame))
-  (define input-pstream (make-pstream))
+  (set! input-pstream (make-pstream))
   (pstream-play input-pstream forwarded-rsound)
   (values input-pstream forwarded-rsound (+ last-frame-played 20000)))
 
@@ -92,7 +93,7 @@
                (set! is-playing #t)
                (input-loop)]
               [(and (char=? command #\k) is-playing)
-               (set!-values (input-pstream input-rsound last-frame-played) (forward (pstream-current-frame input-pstream)  input-rsound))
+               (set!-values (input-pstream input-rsound last-frame-played) (forward (pstream-current-frame input-pstream)  input-rsound input-pstream))
                (set! is-playing #t)
                (input-loop)]
               [(char=? command #\e)  (displayln "\nExited successfully...")]        
@@ -109,10 +110,10 @@
 
 ; Thread to update progress bar channel
 (define update-progress-bar (thread (lambda ()
-                                      (let loop ([counter 0])
-                                        (cond [is-playing
-                                               (set! counter (add1 counter))])
+                                      (let loop ()
+                                        (define counter (round
+                                                         (/ (+ played-frame-count (pstream-current-frame input-pstream)) 44100)))
                                         (channel-put frame-pos-channel counter)
                                         (sleep 1)
-                                        (loop counter)))))
+                                        (loop )))))
 (input-loop)
