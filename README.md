@@ -1,9 +1,9 @@
 # MPEGMafia
-![Alt text](/mpegmafia.png "Optional Title")
+![Alt text](/mpegmafia.gif "Optional Title")
 
 This is a very early stage command line music/podcast player made in racket. 
 
-Named after my the ex-underground artist JPEGMafia, and the MPEG mafia.
+Named after the ex-underground artist JPEGMafia, and the MPEG mafia.
 
 ### Goals
 - [x] Play music.
@@ -15,5 +15,5 @@ Named after my the ex-underground artist JPEGMafia, and the MPEG mafia.
 - [ ] Seconds counter (WIP)
 - [ ] Skip to timestamp.
 - [ ] Advanced queueing functionality.
-- [ ] Podcast RSS integration.
+- [ ] Podcast RSS integration. (WIP)
 - [ ] MP3 support.
