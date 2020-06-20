@@ -3,7 +3,7 @@
 
 This is a very early stage command line music/podcast player made in racket. 
 
-Named after my the ex-underground artist JPEGMafia, and the MPEG mafia.
+Named after the ex-underground artist JPEGMafia, and the MPEG mafia.
 
 ### Goals
 - [x] Play music.
