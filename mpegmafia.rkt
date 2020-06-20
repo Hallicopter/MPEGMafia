@@ -58,21 +58,7 @@
 (define frame-pos-channel (make-channel))
 
 ; Define the terminal buffer for progress bar
-(define buf (make-cached-buffer 4 100))
-
-; Progress bar thread
-(define progress-bar (thread (lambda ()
-                               (let loop ()
-                                 (define counter (channel-get frame-pos-channel))
-                                 
-                                 (draw buf (vappend (text (string-append (format "~v" counter) " sec"))
-                                                    (hline counter)
-                                                    (text "Playing song. Press p to pause, c to continue, e to exit.")
-                                                    #:halign 'left))
-                                 (sleep 0.4)
-                                 (cond [(equal? 100 counter)
-                                        #f]
-                                       [else (loop)])))))
+(define buf (make-cached-buffer 8 100))
 
 ; Infinite loop for taking input
 (define (input-loop)
@@ -104,7 +90,7 @@
    ; return the argument as a filename to compile
    filename)
 
-; Babble for testing purposes
+; Program starts here
 (define song (command-line
               #:args (filename) 
               filename))
@@ -112,6 +98,31 @@
 (define-values (input-pstream input-rsound) (play song))
 (define last-frame-played 0)
 (define played-frame-count 0)
+
+; Progress bar thread
+(define progress-bar (thread (lambda ()
+                               (let loop ()
+                                 (define counter (channel-get frame-pos-channel))
+                                 
+                                 (draw buf (vappend (text "  __  __ ___ ___ ___ __  __   _   ___ ___   _   ")
+                                                    (text " |  \\/  | _ \\ __/ __|  \\/  | /_\\ | __|_ _| /_\\  ")
+                                                    (text " | |\\/| |  _/ _| (_ | |\\/| |/ _ \\| _| | | / _ \\ ")
+                                                    (text " |_|  |_|_| |___\\___|_|  |_/_/ \\_\\_| |___/_/ \\_\\")
+                                                    (text "                                               ")
+                                                    (text (string-append
+                                                           (format "~v" counter)
+                                                           " sec of "
+                                                           (format "~v" (round ( / (rs-read-frames song) 44100)))
+                                                            " s"))
+                                                    (hline counter)
+                                                    (text "Playing song. Press p to pause, c to continue, e to exit.")
+                                                    #:halign 'left))
+                                 
+                                 (sleep 0.4)
+                                 (cond [(equal? 100 counter)
+                                        #f]
+                                       [else (loop)])))))
+
 
 ; Thread to update progress bar channel
 (define update-progress-bar (thread (lambda ()
