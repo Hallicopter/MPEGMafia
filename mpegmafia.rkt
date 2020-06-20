@@ -99,10 +99,15 @@
               [(char=? command #\e)  (displayln "\nExited successfully...")]        
               [else (displayln "unknown command") (input-loop)]))))
 
-  
+ (command-line
+   #:args (filename) ; expect one command-line argument: <filename>
+   ; return the argument as a filename to compile
+   filename)
 
 ; Babble for testing purposes
-(define song "riptide.wav")
+(define song (command-line
+              #:args (filename) 
+              filename))
 (define is-playing #t)
 (define-values (input-pstream input-rsound) (play song))
 (define last-frame-played 0)
