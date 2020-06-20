@@ -13,5 +13,5 @@ This is a very early stage command line music/podcast player made in racket.
 - [ ] Seconds counter (WIP)
 - [ ] Skip to timestamp.
 - [ ] Advanced queueing functionality.
-- [ ] Podcast RSS integraiton.
+- [ ] Podcast RSS integration.
 - [ ] MP3 support.
