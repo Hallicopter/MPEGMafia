@@ -15,5 +15,5 @@ Named after the ex-underground artist JPEGMafia, and the MPEG mafia.
 - [ ] Seconds counter (WIP)
 - [ ] Skip to timestamp.
 - [ ] Advanced queueing functionality.
-- [ ] Podcast RSS integration.
+- [ ] Podcast RSS integration. (WIP)
 - [ ] MP3 support.
