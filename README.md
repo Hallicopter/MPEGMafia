@@ -1,4 +1,5 @@
 # MPEGMafia
+![Alt text](/mpegmafia.png "Optional Title")
 
 This is a very early stage command line music/podcast player made in racket. 
 
