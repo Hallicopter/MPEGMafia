@@ -16,4 +16,4 @@ Named after the ex-underground artist JPEGMafia, and the MPEG mafia.
 - [ ] Skip to timestamp.
 - [ ] Advanced queueing functionality.
 - [ ] Podcast RSS integration. (WIP)
-- [ ] MP3 support.
+- [x] MP3 support (Hacky)
