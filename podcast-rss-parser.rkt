@@ -35,3 +35,7 @@
   (call-with-output-file output-file
     (lambda (p) (display (port->bytes (get-pure-port #:redirections 10 (string->url (podcast-link podcast)))) p))
     #:exists 'replace))
+
+; Converts all the mp3 to wav
+(define (mp3-to-wav)
+  (system* "./convert"))

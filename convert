@@ -1,0 +1,2 @@
+#!/bin/sh	
+for f in *.mp3; do /usr/local/bin/ffmpeg -i "$f" -acodec pcm_s16le -ac 1 -ar 44100 "${f%.mp3}.wav"; done
