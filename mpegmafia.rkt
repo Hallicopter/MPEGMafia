@@ -8,6 +8,9 @@
 ; so the whole song doesn't have to be
 ; decoded from the file everytime.
 (define (play filepath)
+  (cond [(string=? "mp3" (last (regexp-split #rx"\\." filepath)))
+         (system* "./mp3-hack" filepath)
+         (set! filepath "curr.wav")])
   (define input-pstream (make-pstream))
   (define input-rsound (rs-read filepath))
   (pstream-play input-pstream input-rsound)
@@ -82,13 +85,15 @@
                (set!-values (input-pstream input-rsound last-frame-played) (forward (pstream-current-frame input-pstream)  input-rsound input-pstream))
                (set! is-playing #t)
                (input-loop)]
-              [(char=? command #\e)  (displayln "\nExited successfully...")]        
+              [(char=? command #\e)
+               (displayln "\nExited successfully...")
+               ((system* "rm" "curr.wav"))]        
               [else (displayln "unknown command") (input-loop)]))))
 
- (command-line
-   #:args (filename) ; expect one command-line argument: <filename>
-   ; return the argument as a filename to compile
-   filename)
+(command-line
+ #:args (filename) ; expect one command-line argument: <filename>
+ ; return the argument as a filename to compile
+ filename)
 
 ; Program starts here
 (define song (command-line
@@ -113,7 +118,7 @@
                                                            (format "~v" counter)
                                                            " sec of "
                                                            (format "~v" (round ( / (rs-read-frames song) 44100)))
-                                                            " s"))
+                                                           " s"))
                                                     (hline counter)
                                                     (text "Playing song. Press p to pause, c to continue, e to exit.")
                                                     #:halign 'left))
