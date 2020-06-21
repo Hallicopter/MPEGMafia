@@ -1,3 +1,4 @@
+#! /usr/local/bin/racket
 #lang racket
 (require rsound)
 (require charterm)
