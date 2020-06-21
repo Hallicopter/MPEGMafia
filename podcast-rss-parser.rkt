@@ -2,6 +2,7 @@
 (require net/http-easy)
 (require xml)
 (require xml/path)
+(require net/url)
 
 (struct podcast (title link))
 
@@ -27,3 +28,10 @@
   (map (λ (title link)
          (define pod (podcast title link))
          pod ) ep-list ep-links))
+
+; Downloads the podcast, and saves it locally
+(define (download-podcast podcast)
+  (define output-file (string-append (podcast-title podcast) ".mp3"))
+  (call-with-output-file output-file
+    (lambda (p) (display (port->bytes (get-pure-port #:redirections 10 (string->url (podcast-link podcast)))) p))
+    #:exists 'replace))
