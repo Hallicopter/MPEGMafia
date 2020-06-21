@@ -14,7 +14,7 @@
   (define input-pstream (make-pstream))
   (define input-rsound (rs-read filepath))
   (pstream-play input-pstream input-rsound)
-  (values input-pstream input-rsound))
+  (values input-pstream input-rsound filepath))
 
 ; Simple pause function
 ; stops any sound on any audio channel
@@ -87,7 +87,7 @@
                (input-loop)]
               [(char=? command #\e)
                (displayln "\nExited successfully...")
-               ((system* "rm" "curr.wav"))]        
+               (delete-file "curr.wav")]        
               [else (displayln "unknown command") (input-loop)]))))
 
 (command-line
@@ -100,7 +100,8 @@
               #:args (filename) 
               filename))
 (define is-playing #t)
-(define-values (input-pstream input-rsound) (play song))
+(define-values (input-pstream input-rsound new-path) (play song))
+(set! song new-path)
 (define last-frame-played 0)
 (define played-frame-count 0)
 
